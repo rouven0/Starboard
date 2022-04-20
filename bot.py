@@ -1,17 +1,17 @@
-# pylint: disable=unused-argument
-from datetime import datetime
+# pylint: disable=unused-argument, missing-module-docstring
 import sys
 from os import getenv
+from datetime import datetime
+
 import logging
-from time import time
-from flask_discord_interactions.models.embed import Author, Embed, Field, Footer
-from flask_discord_interactions.models.message import Message
 import requests
 
 from dotenv import load_dotenv
+
 from flask import Flask, request, render_template
 from flask_discord_interactions import DiscordInteractions
-
+from flask_discord_interactions.models.embed import Author, Embed, Field, Footer
+from flask_discord_interactions.models.message import Message
 
 import config
 
@@ -41,10 +41,11 @@ if "--remove-global" in sys.argv:
 
 @discord.command(type=3, name="Star message")
 def star(ctx, message: Message):
+    "Message starring context menu command"
     if message.author.id == app.config["DISCORD_CLIENT_ID"]:
         return Message("You can't star messages from starboard,", ephemeral=True)
     r = requests.post(
-        "https://discord.com/api/webhooks/966400986316935228/pIoJfqim3JN4SxgtZxxHcIOvYpiMvfYm7sv79P-O3WKxWFcxJLSTueLOLHed_iebvBaa",
+        "TODO: replace this",
         json=Message(
             embed=Embed(
                 author=Author(
@@ -62,7 +63,10 @@ def star(ctx, message: Message):
                 fields=[
                     Field(
                         name="Jump to message",
-                        value=f"[click here](https://discord.com/channels/{ctx.guild_id}/{ctx.channel_id}/{message.id})",
+                        value=(
+                            "[click here]"
+                            f"(https://discord.com/channels/{ctx.guild_id}/{ctx.channel_id}/{message.id})"
+                        ),
                     )
                 ],
             ),
@@ -75,6 +79,7 @@ def star(ctx, message: Message):
 
 @app.route("/setup")
 def webhook():
+    "Setup route that gets the webhook from the discord api"
     data = {
         "client_id": getenv("DISCORD_CLIENT_ID", default=""),
         "client_secret": getenv("DISCORD_CLIENT_SECRET", default=""),
@@ -83,8 +88,8 @@ def webhook():
         "redirect_uri": "https://starboard.rfive.de/api/setup",
     }
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
-    # r = requests.post("https://discord.com/api/v10/oauth2/token", data=data, headers=headers)
-    # r.raise_for_status()
+    r = requests.post("https://discord.com/api/v10/oauth2/token", data=data, headers=headers)
+    r.raise_for_status()
 
     return render_template("./setup_success.html")
 

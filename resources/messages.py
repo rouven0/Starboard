@@ -4,6 +4,11 @@ Discord servers
 """
 from dataclasses import dataclass
 from resources import database
+from time import time
+
+
+def max_timestamp() -> int:
+    return int((time() - 30 * 24 * 60 * 60) * 1000.0 - 1420070400000) << 22
 
 
 @dataclass
@@ -127,6 +132,16 @@ def update(message: Message, stars: int = None, flags: int = None, star_users: s
     if star_users is not None:
         database.cur.execute("UPDATE messages SET star_users=%s WHERE id=%s", (star_users, message.id))
         message.star_users = star_users
+    database.con.commit()
+
+
+def delete(message: Message) -> None:
+    """
+    Deletes a message from the database
+
+    :param Message message: The message to delete
+    """
+    database.cur.execute("DELETE FROM messages WHERE id=%s", (message.id,))
     database.con.commit()
 
 

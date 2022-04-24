@@ -20,6 +20,8 @@ import config
 from resources import messages
 from resources import guilds
 
+from guide import guide_bp
+
 load_dotenv("./.env")
 
 app = Flask(__name__)
@@ -47,6 +49,8 @@ if "--remove-global" in sys.argv:
 @discord.command(type=3, name="Star message")
 def star(ctx, message: Message):
     """Message starring context menu command"""
+    if int(message.id) < messages.max_timestamp():
+        return Message("You can't star messages older than 30 days.", ephemeral=True)
     if message.author.id == app.config["DISCORD_CLIENT_ID"]:
         return Message("You can't star messages from starboard,", ephemeral=True)
     if messages.exists(message.id):
@@ -77,6 +81,8 @@ def star(ctx, message: Message):
 def star_button(ctx, message_id, stars: int):
     guild = guilds.get(ctx.guild_id)
     message = messages.get(message_id)
+    if int(message_id) < messages.max_timestamp():
+        return Message("You can't star messages older than 30 days.", ephemeral=True)
     if ctx.author.id in message.star_users:
         return Message("You can't star a message twice.", ephemeral=True)
     if message.sent:
@@ -109,8 +115,8 @@ def star_button(ctx, message_id, stars: int):
         sleep(1)
         requests.delete(ctx.followup_url() + "/messages/@original").raise_for_status()
 
-    # note: flag check
-    threading.Thread(target=delete_original).start()
+    if guild.delete_own_messages:
+        threading.Thread(target=delete_original).start()
 
     r = requests.post(
         f"{config.BASE_URL}/{guild.webhook_id}/{guild.webhook_token}",
@@ -189,6 +195,8 @@ def webhook():
 
     return render_template("./setup_success.html", msg=msg)
 
+
+discord.register_blueprint(guide_bp)
 
 if "--update" in sys.argv:
     discord.update_commands(guild_id=830928381100556338)

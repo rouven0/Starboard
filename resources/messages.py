@@ -93,6 +93,7 @@ def get_all() -> list[Message]:
     """
     :return: A list of all registered messages
     """
+    database.con.commit()
     database.cur.execute("SELECT * from messages")
     messages = []
     for record in database.cur.fetchall():

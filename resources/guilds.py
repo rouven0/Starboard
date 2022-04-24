@@ -3,6 +3,7 @@
 Discord servers
 """
 from dataclasses import dataclass
+from sys import flags
 from resources import database
 
 
@@ -53,6 +54,26 @@ class Guild:
         :rtype: bool
         """
         return bool(self.flags & 1 << 1)
+
+    def set_self_stars_allowed(self, value):
+        """
+        :param bool value: True if self stars are allowed
+        """
+        if value:
+            self.flags |= 1 << 0
+        else:
+            self.flags &= ~(1 << 0)
+        update(self, flags=self.flags)
+
+    def set_delete_own_messages(self, value):
+        """
+        :param bool value: True if own messages should be deleted
+        """
+        if value:
+            self.flags |= 1 << 1
+        else:
+            self.flags &= ~(1 << 1)
+        update(self, flags=self.flags)
 
 
 def exists(id: str) -> bool:

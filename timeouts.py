@@ -16,5 +16,5 @@ while True:
     for message in messages.get_all():
         if int(message.id) < messages.max_timestamp():
             messages.delete(message)
-        logging.info("Deleted a message: id %s", message.id)
+            logging.info("Deleted a message: id %s", message.id)
     sleep(5)

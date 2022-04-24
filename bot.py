@@ -6,6 +6,7 @@ from datetime import datetime
 import logging
 from time import sleep
 from flask_discord_interactions.models.component import ActionRow, Button
+from flask_discord_interactions.models.option import CommandOptionType
 import requests
 import threading
 
@@ -49,12 +50,15 @@ if "--remove-global" in sys.argv:
 @discord.command(type=3, name="Star message")
 def star(ctx, message: Message):
     """Message starring context menu command"""
+    guild = guilds.get(ctx.guild_id)
     if int(message.id) < messages.max_timestamp():
         return Message("You can't star messages older than 30 days.", ephemeral=True)
     if message.author.id == app.config["DISCORD_CLIENT_ID"]:
         return Message("You can't star messages from starboard,", ephemeral=True)
     if messages.exists(message.id):
         return Message("This message already got stars, check your starboard channel to see it.", ephemeral=True)
+    if ctx.author.id == message.author.id and guild.self_stars_allowed == False:
+        return Message("You can't star your own messages.", ephemeral=True)
     messages.insert(messages.Message(id=message.id, star_users=ctx.author.id))
     return Message(
         f"{message.author.username} starred a message:",
@@ -87,6 +91,8 @@ def star_button(ctx, message_id, stars: int):
         return Message("You can't star a message twice.", ephemeral=True)
     if message.sent:
         return Message("This message was already sent to the starboard channel.", ephemeral=True)
+    if ctx.author.id == ctx.message.author.id and not guild.self_stars_allowed:
+        return Message("You can't star your own messages.", ephemeral=True)
     message.add_star_user(ctx.author.id)
     if stars + 1 < guild.required_stars:
         return Message(
@@ -166,6 +172,50 @@ def star_button(ctx, message_id, stars: int):
             )
         ],
         update=True,
+    )
+
+
+@discord.command(
+    options=[
+        {
+            "name": "stars",
+            "type": CommandOptionType.INTEGER,
+            "description": "The amount of stars required to send the message.",
+            "min_value": 2,
+        },
+        {
+            "name": "allow_self_stars",
+            "type": CommandOptionType.BOOLEAN,
+            "description": "Whether or not to allow users to star their own messages.",
+            "min_value": 2,
+        },
+        {
+            "name": "delete_message",
+            "type": CommandOptionType.BOOLEAN,
+            "description": "Whether or not to delete the interaction response after starring and sending the message.",
+            "min_value": 2,
+        },
+    ]
+)
+def settings(ctx, stars: int = None, allow_self_stars: bool = None, delete_message: bool = None):
+    """Set up starboard."""
+    guild = guilds.get(ctx.guild_id)
+    if stars:
+        guilds.update(guild, required_stars=stars)
+    if allow_self_stars is not None:
+        guild.set_self_stars_allowed(allow_self_stars)
+    if delete_message is not None:
+        guild.set_delete_own_messages(delete_message)
+    return Message(
+        "Settings successfully updated.",
+        embed=Embed(
+            fields=[
+                Field("Required stars", str(guild.required_stars)),
+                Field("Allow self stars", str(guild.self_stars_allowed)),
+                Field("Delete interaction response", str(guild.delete_own_messages)),
+            ],
+        ),
+        ephemeral=True,
     )
 
 

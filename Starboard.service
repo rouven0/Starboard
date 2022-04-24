@@ -3,7 +3,6 @@ Description=Starboard discord bot
 After=network-online.target
 
 [Service]
-User=USER
 WorkingDirectory=WORKINGDIRECTORY
 ExecStart=WORKINGDIRECTORY/venv/bin/python3 -m gunicorn bot:app -b 127.0.0.1:9200 -w 4
 

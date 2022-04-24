@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 
 from flask import Flask, request, render_template
 from flask_discord_interactions import DiscordInteractions
-from flask_discord_interactions.models.embed import Author, Embed, Field, Footer
+from flask_discord_interactions.models.embed import Author, Embed, Field, Footer, Media
 from flask_discord_interactions.models.message import Message
 
 import config
@@ -60,9 +60,16 @@ def star(ctx, message: Message):
     if ctx.author.id == message.author.id and guild.self_stars_allowed == False:
         return Message("You can't star your own messages.", ephemeral=True)
     messages.insert(messages.Message(id=message.id, star_users=ctx.author.id))
+    try:
+        attachment_url = request.json["data"]["resolved"]["messages"][message.id]["attachments"][0]["url"]
+    except IndexError:
+        attachment_url = None
     return Message(
-        f"{message.author.username} starred a message:",
+        f"{ctx.author.username} starred a message:",
         embed=Embed(
+            author=Author(
+                name=f"{message.author.username}#{message.author.discriminator}", icon_url=message.author.avatar_url
+            ),
             description=message.content
             if message.content
             else message.embeds[0].description
@@ -70,6 +77,7 @@ def star(ctx, message: Message):
             else "",
             footer=Footer("Click the button to add a star"),
             color=config.EMBED_COLOR,
+            image=Media(url=attachment_url) if attachment_url else None,
         ),
         components=[
             ActionRow(
@@ -94,14 +102,12 @@ def star_button(ctx, message_id, stars: int):
     if ctx.author.id == ctx.message.author.id and not guild.self_stars_allowed:
         return Message("You can't star your own messages.", ephemeral=True)
     message.add_star_user(ctx.author.id)
+    embed = ctx.message.embeds[0]
     if stars + 1 < guild.required_stars:
+        embed.footer = Footer("Click the button to add a star")
         return Message(
             f"{ctx.author.username} starred a message:",
-            embed=Embed(
-                description=ctx.message.embeds[0].description,
-                footer=Footer("Click the button to add a star"),
-                color=config.EMBED_COLOR,
-            ),
+            embed=embed,
             components=[
                 ActionRow(
                     components=[
@@ -123,40 +129,33 @@ def star_button(ctx, message_id, stars: int):
 
     if guild.delete_own_messages:
         threading.Thread(target=delete_original).start()
+    embed.footer = Footer(message_id)
+    embed.timestamp = datetime.utcnow().isoformat()
+    embed.fields = [
+        {
+            "name": "Jump to message",
+            "value": f"[click here](https://discord.com/channels/{ctx.guild_id}/{ctx.channel_id}/{message_id})",
+        }
+    ]
 
     r = requests.post(
         f"{config.BASE_URL}/{guild.webhook_id}/{guild.webhook_token}",
         json=Message(
-            embed=Embed(
-                author=Author(
-                    name=f"{ctx.author.username}#{ctx.author.discriminator}",
-                    icon_url=ctx.message.author.avatar_url,
-                ),
-                description=ctx.message.embeds[0].description,
-                footer=Footer(text=ctx.message.id),
-                timestamp=datetime.utcnow().isoformat(),
-                color=config.EMBED_COLOR,
-                fields=[
-                    Field(
-                        name="Jump to message",
-                        value=(
-                            "[click here]"
-                            f"(https://discord.com/channels/{ctx.guild_id}/{ctx.channel_id}/{ctx.message.id})"
-                        ),
-                    )
-                ],
-            ),
+            embed=embed,
         ).dump()["data"],
     )
     message.mark_sent()
+    print(r.text)
     r.raise_for_status()
 
     return Message(
         f"{ctx.author.username} starred a message:",
         embed=Embed(
+            author=embed.author,
             description=ctx.message.embeds[0].description,
             footer=Footer("Message was sent to the starboard!"),
             color=config.EMBED_COLOR,
+            image=embed.image,
         ),
         components=[
             ActionRow(

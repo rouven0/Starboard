@@ -3,7 +3,6 @@
 Discord servers
 """
 from dataclasses import dataclass
-from sys import flags
 from resources import database
 
 

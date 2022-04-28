@@ -2,12 +2,13 @@
 """
 Discord servers
 """
+from time import time
 from dataclasses import dataclass
 from resources import database
-from time import time
 
 
 def max_timestamp() -> int:
+    """Pseudo id from a message 30 days ago"""
     return int((time() - 30 * 24 * 60 * 60) * 1000.0 - 1420070400000) << 22
 
 
@@ -53,10 +54,12 @@ class Message:
 
     @property
     def stars(self):
+        """Number of stars a message has"""
         return len(self.star_users.split(";"))
 
     @property
     def sent(self):
+        """Whether the message has been sent to starboard"""
         return self.flags & 1 << 0
 
 
@@ -118,15 +121,12 @@ def insert(message: Message):
     database.con.commit()
 
 
-def update(message: Message, stars: int = None, flags: int = None, star_users: str = None) -> None:
+def update(message: Message, flags: int = None, star_users: str = None) -> None:
     """
     Updates a message in the database
 
     Same as in players, not documented until fixed
     """
-    if stars is not None:
-        database.cur.execute("UPDATE messages SET stars=%s WHERE id=%s", (stars, message.id))
-        message.stars = stars
     if flags is not None:
         database.cur.execute("UPDATE messages SET flags=%s WHERE id=%s", (flags, message.id))
         message.flags = flags

@@ -4,7 +4,7 @@ from os import listdir
 from flask_discord_interactions import DiscordInteractionsBlueprint, Message, Embed
 from flask_discord_interactions.models.component import ActionRow, Button, SelectMenu, SelectMenuOption
 from flask_discord_interactions.models.option import CommandOptionType
-from flask_discord_interactions.models.embed import Field, Author, Media
+from flask_discord_interactions.models.embed import Media
 
 import config
 
@@ -75,7 +75,11 @@ def get_guide_selects():
                 Button(
                     label="Add starboard to your server",
                     style=5,
-                    url="https://discord.com/api/oauth2/authorize?client_id=966294455726506035&redirect_uri=https%3A%2F%2Fstarboard.rfive.de%2Fapi%2Fsetup&response_type=code&scope=webhook.incoming%20applications.commands",
+                    url=(
+                        "https://discord.com/api/oauth2/authorize?client_id=966294455726506035"
+                        "&redirect_uri=https%3A%2F%2Fstarboard.rfive.de%2Fapi%2Fsetup&response_type=code"
+                        "&scope=webhook.incoming%20applications.commands"
+                    ),
                 )
             ]
         ),

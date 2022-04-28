@@ -5,14 +5,14 @@ from datetime import datetime
 
 import logging
 from time import sleep
-from flask_discord_interactions.models.component import ActionRow, Button
-from flask_discord_interactions.models.option import CommandOptionType
-import requests
 import threading
+import requests
 
 from dotenv import load_dotenv
 
 from flask import Flask, request, render_template
+from flask_discord_interactions.models.component import ActionRow, Button
+from flask_discord_interactions.models.option import CommandOptionType
 from flask_discord_interactions import DiscordInteractions
 from flask_discord_interactions.models.embed import Author, Embed, Field, Footer, Media
 from flask_discord_interactions.models.message import Message
@@ -57,7 +57,7 @@ def star(ctx, message: Message):
         return Message("You can't star messages from starboard,", ephemeral=True)
     if messages.exists(message.id):
         return Message("This message already got stars, check your starboard channel to see it.", ephemeral=True)
-    if ctx.author.id == message.author.id and guild.self_stars_allowed == False:
+    if ctx.author.id == message.author.id and guild.self_stars_allowed is False:
         return Message("You can't star your own messages.", ephemeral=True)
     messages.insert(messages.Message(id=message.id, star_users=ctx.author.id))
     try:
@@ -91,6 +91,7 @@ def star(ctx, message: Message):
 
 @discord.custom_handler(custom_id="star")
 def star_button(ctx, message_id, stars: int):
+    """Star button handler"""
     guild = guilds.get(ctx.guild_id)
     message = messages.get(message_id)
     if int(message_id) < messages.max_timestamp():

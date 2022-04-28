@@ -175,6 +175,7 @@ def star_button(ctx, message_id, stars: int):
 
 
 @discord.command(
+    default_member_permissions=32,
     options=[
         {
             "name": "stars",
@@ -194,12 +195,10 @@ def star_button(ctx, message_id, stars: int):
             "description": "Whether or not to delete the interaction response after starring and sending the message.",
             "min_value": 2,
         },
-    ]
+    ],
 )
 def settings(ctx, stars: int = None, allow_self_stars: bool = None, delete_message: bool = None):
     """Set up starboard."""
-    if not (ctx.author.permissions & (1 << 5)):
-        return Message("You do not have the right permissions to perform this action.", ephemeral=True)
     guild = guilds.get(ctx.guild_id)
     if stars:
         guilds.update(guild, required_stars=stars)

@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 from flask import Flask, request, render_template
 from flask_discord_interactions.models.component import ActionRow, Button
-from flask_discord_interactions.models.option import CommandOptionType
+from flask_discord_interactions.models.option import CommandOptionType, Option
 from flask_discord_interactions import DiscordInteractions
 from flask_discord_interactions.models.embed import Author, Embed, Field, Footer, Media
 from flask_discord_interactions.models.message import Message
@@ -146,7 +146,6 @@ def star_button(ctx, message_id, stars: int):
         ).dump()["data"],
     )
     message.mark_sent()
-    print(r.text)
     r.raise_for_status()
 
     return Message(
@@ -178,24 +177,22 @@ def star_button(ctx, message_id, stars: int):
 @discord.command(
     default_member_permissions=32,
     options=[
-        {
-            "name": "stars",
-            "type": CommandOptionType.INTEGER,
-            "description": "The amount of stars required to send the message.",
-            "min_value": 2,
-        },
-        {
-            "name": "allow_self_stars",
-            "type": CommandOptionType.BOOLEAN,
-            "description": "Whether or not to allow users to star their own messages.",
-            "min_value": 2,
-        },
-        {
-            "name": "delete_message",
-            "type": CommandOptionType.BOOLEAN,
-            "description": "Whether or not to delete the interaction response after starring and sending the message.",
-            "min_value": 2,
-        },
+        Option(
+            name="stars",
+            type=CommandOptionType.INTEGER,
+            description="The amount of stars required to send the message.",
+            min_value=2,
+        ),
+        Option(
+            name="allow_self_stars",
+            type=CommandOptionType.BOOLEAN,
+            description="Whether or not to allow users to star their own messages.",
+        ),
+        Option(
+            name="delete_message",
+            type=CommandOptionType.BOOLEAN,
+            description="Whether or not to delete the interaction response after starring and sending the message.",
+        ),
     ],
 )
 def settings(ctx, stars: int = None, allow_self_stars: bool = None, delete_message: bool = None):

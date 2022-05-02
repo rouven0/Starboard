@@ -82,8 +82,7 @@ def exists(id: str) -> bool:
     :param str name: A name to check
     :return: A bool defining whether that guild exists
     """
-    database.cur.execute("SELECT * FROM guilds WHERE id=%s", (id,))
-    if len(database.cur.fetchall()) == 1:
+    if len(database.fetchone("SELECT * FROM guilds WHERE id=%s", (id,))) == 1:
         return True
     return False
 
@@ -98,8 +97,7 @@ def get(id: str) -> Guild:
     """
     if not exists(id):
         raise GuildNotFound()
-    database.cur.execute("SELECT * FROM guilds WHERE id=%s", (id,))
-    record = database.cur.fetchone()
+    record = database.fetchone("SELECT * FROM guilds WHERE id=%s", (id,))
     guild = Guild(**record)
     return guild
 
@@ -108,11 +106,8 @@ def get_all() -> list[Guild]:
     """
     :return: A list of all registered guilds
     """
-    database.cur.execute("SELECT * from guilds")
-    guilds = []
-    for record in database.cur.fetchall():
-        guilds.append(Guild(**record))
-    return guilds
+    records = database.fetchall("SELECT * from guilds")
+    return [Guild(**record) for record in records]
 
 
 def insert(guild: Guild):
@@ -126,10 +121,7 @@ def insert(guild: Guild):
     placeholders = ", ".join(["%s"] * len(attrs))
     columns = ", ".join(attrs.keys())
     sql = f"INSERT INTO guilds ({columns}) VALUES ({placeholders})"
-    print(sql)
-    print(tuple(guild))
-    database.cur.execute(sql, tuple(guild))
-    database.con.commit()
+    database.execute(sql, tuple(guild))
 
 
 def update(
@@ -141,18 +133,17 @@ def update(
     Same as in players, not documented until fixed
     """
     if webhook_id is not None:
-        database.cur.execute("UPDATE guilds SET webhook_id=%s WHERE id=%s", (webhook_id, guild.id))
+        database.execute("UPDATE guilds SET webhook_id=%s WHERE id=%s", (webhook_id, guild.id))
         guild.webhook_id = webhook_id
     if webhook_token is not None:
-        database.cur.execute("UPDATE guilds SET webhook_token=%s WHERE id=%s", (webhook_token, guild.id))
+        database.execute("UPDATE guilds SET webhook_token=%s WHERE id=%s", (webhook_token, guild.id))
         guild.webhook_token = webhook_token
     if required_stars is not None:
-        database.cur.execute("UPDATE guilds SET required_stars=%s WHERE id=%s", (required_stars, guild.id))
+        database.execute("UPDATE guilds SET required_stars=%s WHERE id=%s", (required_stars, guild.id))
         guild.required_stars = required_stars
     if flags is not None:
-        database.cur.execute("UPDATE guilds SET flags=%s WHERE id=%s", (flags, guild.id))
+        database.execute("UPDATE guilds SET flags=%s WHERE id=%s", (flags, guild.id))
         guild.flags = flags
-    database.con.commit()
 
 
 class GuildNotFound(Exception):

@@ -70,8 +70,7 @@ def exists(id: str) -> bool:
     :param str name: A name to check
     :return: A bool defining whether that message exists
     """
-    database.cur.execute("SELECT * FROM messages WHERE id=%s", (id,))
-    if len(database.cur.fetchall()) == 1:
+    if len(database.fetchall("SELECT * FROM messages WHERE id=%s", (id,))) == 1:
         return True
     return False
 
@@ -86,8 +85,7 @@ def get(id: str) -> Message:
     """
     if not exists(id):
         raise MessageNotFound()
-    database.cur.execute("SELECT * FROM messages WHERE id=%s", (id,))
-    record = database.cur.fetchone()
+    record = database.fetchone("SELECT * FROM messages WHERE id=%s", (id,))
     message = Message(**record)
     return message
 
@@ -96,12 +94,8 @@ def get_all() -> list[Message]:
     """
     :return: A list of all registered messages
     """
-    database.con.commit()
-    database.cur.execute("SELECT * from messages")
-    messages = []
-    for record in database.cur.fetchall():
-        messages.append(Message(**record))
-    return messages
+    records = database.fetchall("SELECT * from messages")
+    return [Message(**record) for record in records]
 
 
 def insert(message: Message):
@@ -115,10 +109,7 @@ def insert(message: Message):
     placeholders = ", ".join(["%s"] * len(attrs))
     columns = ", ".join(attrs.keys())
     sql = f"INSERT INTO messages ({columns}) VALUES ({placeholders})"
-    print(sql)
-    print(tuple(message))
-    database.cur.execute(sql, tuple(message))
-    database.con.commit()
+    database.execute(sql, tuple(message))
 
 
 def update(message: Message, flags: int = None, star_users: str = None) -> None:
@@ -128,12 +119,11 @@ def update(message: Message, flags: int = None, star_users: str = None) -> None:
     Same as in players, not documented until fixed
     """
     if flags is not None:
-        database.cur.execute("UPDATE messages SET flags=%s WHERE id=%s", (flags, message.id))
+        database.execute("UPDATE messages SET flags=%s WHERE id=%s", (flags, message.id))
         message.flags = flags
     if star_users is not None:
-        database.cur.execute("UPDATE messages SET star_users=%s WHERE id=%s", (star_users, message.id))
+        database.execute("UPDATE messages SET star_users=%s WHERE id=%s", (star_users, message.id))
         message.star_users = star_users
-    database.con.commit()
 
 
 def delete(message: Message) -> None:
@@ -142,8 +132,7 @@ def delete(message: Message) -> None:
 
     :param Message message: The message to delete
     """
-    database.cur.execute("DELETE FROM messages WHERE id=%s", (message.id,))
-    database.con.commit()
+    database.execute("DELETE FROM messages WHERE id=%s", (message.id,))
 
 
 class MessageNotFound(Exception):

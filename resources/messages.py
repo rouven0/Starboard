@@ -2,8 +2,9 @@
 """
 Discord servers
 """
-from time import time
 from dataclasses import dataclass
+from time import time
+
 from resources import database
 
 

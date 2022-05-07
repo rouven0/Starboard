@@ -1,27 +1,24 @@
 # pylint: disable=unused-argument, missing-module-docstring
-import sys
-from os import getenv
-from datetime import datetime
-
 import logging
-from time import sleep
+import sys
 import threading
+from datetime import datetime
+from os import getenv
+from time import sleep
+
 import requests
-
 from dotenv import load_dotenv
-
-from flask import Flask, request, render_template
-from flask_discord_interactions.models.component import ActionRow, Button
-from flask_discord_interactions.models.option import CommandOptionType, Option
+from flask import Flask, render_template, request
 from flask_discord_interactions import DiscordInteractions
-from flask_discord_interactions.models.embed import Author, Embed, Field, Footer, Media
+from flask_discord_interactions.models.component import ActionRow, Button
+from flask_discord_interactions.models.embed import (Author, Embed, Field,
+                                                     Footer, Media)
 from flask_discord_interactions.models.message import Message
+from flask_discord_interactions.models.option import CommandOptionType, Option
 
 import config
-from resources import messages
-from resources import guilds
-
 from guide import guide_bp
+from resources import guilds, messages
 
 load_dotenv("./.env")
 

@@ -82,9 +82,7 @@ def exists(id: str) -> bool:
     :param str name: A name to check
     :return: A bool defining whether that guild exists
     """
-    if len(database.fetchone("SELECT * FROM guilds WHERE id=%s", (id,))) == 1:
-        return True
-    return False
+    return database.fetchone("SELECT * FROM guilds WHERE id=%s", (id,)) is not None
 
 
 def get(id: str) -> Guild:

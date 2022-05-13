@@ -6,6 +6,7 @@ from datetime import datetime
 from os import getenv
 from time import sleep
 
+import config
 import requests
 from flask import Flask, render_template, request
 from flask_discord_interactions import DiscordInteractions
@@ -13,11 +14,8 @@ from flask_discord_interactions.models.component import ActionRow, Button
 from flask_discord_interactions.models.embed import Author, Embed, Field, Footer, Media
 from flask_discord_interactions.models.message import Message
 from flask_discord_interactions.models.option import CommandOptionType, Option
-
-import config
 from guide import guide_bp
 from resources import guilds, messages
-
 
 app = Flask(__name__)
 discord = DiscordInteractions(app)

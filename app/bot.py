@@ -58,23 +58,27 @@ def star(ctx, message: Message):
         attachment_url = None
     return Message(
         f"{ctx.author.username} starred a message:",
-        embed=Embed(
-            author=Author(
-                name=f"{message.author.username}#{message.author.discriminator}", icon_url=message.author.avatar_url
-            ),
-            description=message.content
-            if message.content
-            else message.embeds[0].description
-            if message.embeds and message.embeds[0].description
-            else "",
-            footer=Footer("Click the button to add a star"),
-            color=config.EMBED_COLOR,
-            image=Media(url=attachment_url) if attachment_url else None,
-        ),
+        embeds=[
+            Embed(
+                author=Author(
+                    name=f"{message.author.username}#{message.author.discriminator}", icon_url=message.author.avatar_url
+                ),
+                description=message.content,
+                footer=Footer("Click the button to add a star"),
+                color=config.EMBED_COLOR,
+                image=Media(url=attachment_url) if attachment_url else None,
+            )
+        ]
+        + message.embeds,
         components=[
             ActionRow(
                 components=[
-                    Button(label="1", emoji={"name": "⭐", "id": None}, custom_id=["star", message.id, 1], style=2)
+                    Button(label="1", emoji={"name": "⭐", "id": None}, custom_id=["star", message.id, 1], style=2),
+                    Button(
+                        label="Jump to message",
+                        style=5,
+                        url=f"https://discord.com/channels/{ctx.guild_id}/{ctx.channel_id}/{message.id}",
+                    ),
                 ]
             )
         ],
@@ -95,12 +99,12 @@ def star_button(ctx, message_id, stars: int):
     if ctx.author.id == ctx.message.author.id and not guild.self_stars_allowed:
         return Message("You can't star your own messages.", ephemeral=True)
     message.add_star_user(ctx.author.id)
-    embed = ctx.message.embeds[0]
+    embeds = ctx.message.embeds
     if stars + 1 < guild.required_stars:
-        embed.footer = Footer("Click the button to add a star")
+        embeds[0].footer = Footer("Click the button to add a star")
         return Message(
             f"{ctx.author.username} starred a message:",
-            embed=embed,
+            embeds=embeds,
             components=[
                 ActionRow(
                     components=[
@@ -109,7 +113,12 @@ def star_button(ctx, message_id, stars: int):
                             emoji={"name": "⭐", "id": None},
                             custom_id=["star", message_id, stars + 1],
                             style=2,
-                        )
+                        ),
+                        Button(
+                            label="Jump to message",
+                            style=5,
+                            url=f"https://discord.com/channels/{ctx.guild_id}/{ctx.channel_id}/{message_id}",
+                        ),
                     ]
                 )
             ],
@@ -122,19 +131,25 @@ def star_button(ctx, message_id, stars: int):
 
     if guild.delete_own_messages:
         threading.Thread(target=delete_original).start()
-    embed.footer = Footer(message_id)
-    embed.timestamp = datetime.utcnow().isoformat()
-    embed.fields = [
-        {
-            "name": "Jump to message",
-            "value": f"[click here](https://discord.com/channels/{ctx.guild_id}/{ctx.channel_id}/{message_id})",
-        }
-    ]
+    embeds_starboard = embeds.copy()
+    embeds_starboard[0].footer = Footer(message_id)
+    embeds_starboard[0].timestamp = datetime.utcnow().isoformat()
 
     r = requests.post(
         f"{config.BASE_URL}/{guild.webhook_id}/{guild.webhook_token}",
         json=Message(
-            embed=embed,
+            embeds=embeds_starboard,
+            components=[
+                ActionRow(
+                    components=[
+                        Button(
+                            label="Jump to message",
+                            style=5,
+                            url=f"https://discord.com/channels/{ctx.guild_id}/{ctx.channel_id}/{message_id}",
+                        )
+                    ]
+                )
+            ],
         ).dump()["data"],
     )
     message.mark_sent()
@@ -142,13 +157,7 @@ def star_button(ctx, message_id, stars: int):
 
     return Message(
         f"{ctx.author.username} starred a message:",
-        embed=Embed(
-            author=embed.author,
-            description=ctx.message.embeds[0].description,
-            footer=Footer("Message was sent to the starboard!"),
-            color=config.EMBED_COLOR,
-            image=embed.image,
-        ),
+        embeds=embeds,
         components=[
             ActionRow(
                 components=[
@@ -158,7 +167,12 @@ def star_button(ctx, message_id, stars: int):
                         custom_id=["star", stars + 1],
                         style=2,
                         disabled=True,
-                    )
+                    ),
+                    Button(
+                        label="Jump to message",
+                        style=5,
+                        url=f"https://discord.com/channels/{ctx.guild_id}/{ctx.channel_id}/{message_id}",
+                    ),
                 ]
             )
         ],

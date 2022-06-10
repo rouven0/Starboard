@@ -237,7 +237,8 @@ def webhook():
     r = requests.post("https://discord.com/api/v10/oauth2/token", data=data, headers=headers)
     try:
         r.raise_for_status()
-    except requests.HTTPError:
+    except requests.HTTPError as e:
+        logging.error(e)
         return "Error while setting up", 500
     webhook = r.json()["webhook"]
     if not guilds.exists(webhook["guild_id"]):

@@ -16,7 +16,18 @@ from flask_discord_interactions.models.message import Message
 from flask_discord_interactions.models.option import CommandOptionType, Option
 from guide import guide_bp
 from resources import guilds, messages
+from utils import get_localizations
 
+import i18n
+from i18n import t, set as set_i18n
+
+
+i18n.set("filename_format", config.I18n.FILENAME_FORMAT)
+i18n.set("fallback", config.I18n.FALLBACK)
+i18n.set("available_locales", config.I18n.AVAILABLE_LOCALES)
+i18n.set("skip_locale_root_data", True)
+
+i18n.load_path.append("./locales")
 app = Flask(__name__)
 discord = DiscordInteractions(app)
 
@@ -34,37 +45,45 @@ console_handler = logging.StreamHandler()
 console_handler.setFormatter(logging.Formatter(config.LOG_FORMAT))
 logger.addHandler(console_handler)
 
+
+# ugly thing I have to do to support nested locales
+for locale in config.I18n.AVAILABLE_LOCALES:
+    logging.info("Initialized locale %s", locale)
+    i18n.t("name", locale=locale)
+
 if "--remove-global" in sys.argv:
     discord.update_commands()
     sys.exit()
 
 
-@discord.command(type=3, name="Star message")
+@discord.command(type=3, name="Star message", name_localizations=get_localizations("commands.star_context.name"))
 def star(ctx, message: Message):
     """Message starring context menu command"""
+    set_i18n("locale", ctx.locale)
     guild = guilds.get(ctx.guild_id)
     if int(message.id) < messages.max_timestamp():
-        return Message("You can't star messages older than 30 days.", ephemeral=True)
+        return Message(t("errors.too_old"), ephemeral=True)
     if message.author.id == app.config["DISCORD_CLIENT_ID"]:
-        return Message("You can't star messages from starboard,", ephemeral=True)
+        return Message(t("errors.starboard_message"), ephemeral=True)
     if messages.exists(message.id):
-        return Message("This message already got stars, check your starboard channel to see it.", ephemeral=True)
+        return Message(t("errors.message_exists"), ephemeral=True)
     if ctx.author.id == message.author.id and guild.self_stars_allowed is False:
-        return Message("You can't star your own messages.", ephemeral=True)
+        return Message(t("errors.self_star"), ephemeral=True)
     messages.insert(messages.Message(id=message.id, star_users=ctx.author.id))
     try:
         attachment_url = request.json["data"]["resolved"]["messages"][message.id]["attachments"][0]["url"]
     except IndexError:
         attachment_url = None
+    set_i18n("locale", ctx.guild_locale)
     return Message(
-        f"{ctx.author.username} starred a message:",
+        t("message.author", author=ctx.author.username),
         embeds=[
             Embed(
                 author=Author(
                     name=f"{message.author.username}#{message.author.discriminator}", icon_url=message.author.avatar_url
                 ),
                 description=message.content,
-                footer=Footer("Click the button to add a star"),
+                footer=Footer(t("message.footer")),
                 color=config.EMBED_COLOR,
                 image=Media(url=attachment_url) if attachment_url else None,
             )
@@ -75,7 +94,7 @@ def star(ctx, message: Message):
                 components=[
                     Button(label="1", emoji={"name": "⭐", "id": None}, custom_id=["star", message.id, 1], style=2),
                     Button(
-                        label="Jump to message",
+                        label=t("message.jump"),
                         style=5,
                         url=f"https://discord.com/channels/{ctx.guild_id}/{ctx.channel_id}/{message.id}",
                     ),
@@ -88,22 +107,24 @@ def star(ctx, message: Message):
 @discord.custom_handler(custom_id="star")
 def star_button(ctx, message_id, stars: int):
     """Star button handler"""
+    set_i18n("locale", ctx.locale)
     guild = guilds.get(ctx.guild_id)
     message = messages.get(message_id)
     if int(message_id) < messages.max_timestamp():
-        return Message("You can't star messages older than 30 days.", ephemeral=True)
+        return Message(t("errors.too_old"), ephemeral=True)
     if ctx.author.id in message.star_users:
-        return Message("You can't star a message twice.", ephemeral=True)
+        return Message(t("errors.starred_twice"), ephemeral=True)
     if message.sent:
-        return Message("This message was already sent to the starboard channel.", ephemeral=True)
+        return Message(t("errors.starboard_message"), ephemeral=True)
     if ctx.author.id == ctx.message.author.id and not guild.self_stars_allowed:
-        return Message("You can't star your own messages.", ephemeral=True)
+        return Message(t("errors.self_star"), ephemeral=True)
+    set_i18n("locale", ctx.guild_locale)
     message.add_star_user(ctx.author.id)
     embeds = ctx.message.embeds
     if stars + 1 < guild.required_stars:
-        embeds[0].footer = Footer("Click the button to add a star")
+        embeds[0].footer = Footer(t("message.footer"))
         return Message(
-            f"{ctx.author.username} starred a message:",
+            t("message.author", author=ctx.author.username),
             embeds=embeds,
             components=[
                 ActionRow(
@@ -115,7 +136,7 @@ def star_button(ctx, message_id, stars: int):
                             style=2,
                         ),
                         Button(
-                            label="Jump to message",
+                            label=t("message.jump"),
                             style=5,
                             url=f"https://discord.com/channels/{ctx.guild_id}/{ctx.channel_id}/{message_id}",
                         ),
@@ -143,7 +164,7 @@ def star_button(ctx, message_id, stars: int):
                 ActionRow(
                     components=[
                         Button(
-                            label="Jump to message",
+                            label=t("message.jump"),
                             style=5,
                             url=f"https://discord.com/channels/{ctx.guild_id}/{ctx.channel_id}/{message_id}",
                         )
@@ -156,7 +177,7 @@ def star_button(ctx, message_id, stars: int):
     r.raise_for_status()
 
     return Message(
-        f"{ctx.author.username} starred a message:",
+        t("message.author", author=ctx.author.username),
         embeds=embeds,
         components=[
             ActionRow(
@@ -169,7 +190,7 @@ def star_button(ctx, message_id, stars: int):
                         disabled=True,
                     ),
                     Button(
-                        label="Jump to message",
+                        label=t("message.jump"),
                         style=5,
                         url=f"https://discord.com/channels/{ctx.guild_id}/{ctx.channel_id}/{message_id}",
                     ),
@@ -203,6 +224,7 @@ def star_button(ctx, message_id, stars: int):
 )
 def settings(ctx, stars: int = None, allow_self_stars: bool = None, delete_message: bool = None):
     """Set up starboard."""
+    set_i18n("locale", ctx.locale)
     guild = guilds.get(ctx.guild_id)
     if stars:
         guilds.update(guild, required_stars=stars)

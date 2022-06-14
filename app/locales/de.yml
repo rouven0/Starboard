@@ -1,0 +1,17 @@
+name: Starboard
+errors:
+  too_old: Du kannst keinen Nachrichten einreichen, die älter als 30 Tage sind.
+  starboard_message: Du kannst keine Nachrichten von Starboard einreichen.
+  message_exists: Diese Nachricht hat bereits einen oder mehr Sterne erhalten, sieh in deinem Starboard oder in diesem Channel nach.
+  self_star: Du kannst nicht deine eigenen Nachrichten einreichen.
+  starred_twice: Du kannst einer Nachricht nicht mehr als einen Stern geben.
+
+message:
+  author: |
+    %{author} hat eine Nachricht für das Starboard vorgeschlagen.
+  footer: Drücke den Schalter um einen Stern hinzuzufügen.
+  jump: Zur Nachricht springen
+
+commands:
+  star_context:
+    name: Einreichen

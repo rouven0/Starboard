@@ -11,6 +11,37 @@ from flask_discord_interactions.models.option import CommandOptionType, Option
 guide_bp = DiscordInteractionsBlueprint()
 
 
+@guide_bp.command()
+def invite(ctx) -> Message:
+    "Install Starboard on your server."
+    return Message(
+        embed=Embed(
+            title="Install Starboard on your server",
+            description=(
+                "Click the button below to get started. You will be asked to select a server to install "
+                "Starboard to and you have to choose an existing channel within that server that Starboard should "
+                "post its messages to."
+            ),
+            color=config.EMBED_COLOR,
+        ),
+        components=[
+            ActionRow(
+                [
+                    Button(
+                        label="Click here to continue",
+                        style=5,
+                        url=(
+                            "https://discord.com/api/oauth2/authorize?client_id=966294455726506035"
+                            "&redirect_uri=https%3A%2F%2Fstarboard.rfive.de%2Fapi%2Fsetup&response_type=code"
+                            "&scope=webhook.incoming%20applications.commands"
+                        ),
+                    )
+                ]
+            )
+        ],
+    )
+
+
 @guide_bp.command(
     options=[
         Option(

@@ -8,7 +8,7 @@ from time import sleep
 
 import config
 import requests
-from flask import Flask, render_template, request
+from flask import Flask, request, redirect
 from flask_discord_interactions import DiscordInteractions
 from flask_discord_interactions.models.component import ActionRow, Button
 from flask_discord_interactions.models.embed import Author, Embed, Field, Footer, Media
@@ -265,12 +265,10 @@ def webhook():
     webhook = r.json()["webhook"]
     if not guilds.exists(webhook["guild_id"]):
         guilds.insert(guilds.Guild(id=webhook["guild_id"], webhook_id=webhook["id"], webhook_token=webhook["token"]))
-        msg = "Your webhook has been created"
     else:
         guilds.update(guilds.get(webhook["guild_id"]), webhook_id=webhook["id"], webhook_token=webhook["token"])
-        msg = "Your webhook has been updated. The old webhook can now be deleted."
 
-    return render_template("./setup_success.html", msg=msg)
+    return redirect("https://discord.com/oauth2/authorized")
 
 
 discord.register_blueprint(guide_bp)

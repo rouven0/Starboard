@@ -7,28 +7,31 @@ from flask_discord_interactions import DiscordInteractionsBlueprint, Embed, Mess
 from flask_discord_interactions.models.component import ActionRow, Button, SelectMenu, SelectMenuOption
 from flask_discord_interactions.models.embed import Media
 from flask_discord_interactions.models.option import CommandOptionType, Option
+from i18n import set as set_i18n
+from i18n import t
+from utils import get_localizations
 
 guide_bp = DiscordInteractionsBlueprint()
 
 
-@guide_bp.command()
+@guide_bp.command(
+    name_localizations=get_localizations("commands.invite.name"),
+    description_localizations=get_localizations("commands.invite.description"),
+)
 def invite(ctx) -> Message:
     "Install Starboard on your server."
+    set_i18n("locale", ctx.locale)
     return Message(
         embed=Embed(
-            title="Install Starboard on your server",
-            description=(
-                "Click the button below to get started. You will be asked to select a server to install "
-                "Starboard to and you have to choose an existing channel within that server that Starboard should "
-                "post its messages to."
-            ),
+            title=t("commands.invite.description"),
+            description=t("invite.message"),
             color=config.EMBED_COLOR,
         ),
         components=[
             ActionRow(
                 [
                     Button(
-                        label="Click here to continue",
+                        label=t("invite.button"),
                         style=5,
                         url=(
                             "https://discord.com/api/oauth2/authorize?client_id=966294455726506035"
@@ -43,10 +46,14 @@ def invite(ctx) -> Message:
 
 
 @guide_bp.command(
+    name_localizations=get_localizations("commands.manual.name"),
+    description_localizations=get_localizations("commands.manual.description"),
     options=[
         Option(
             name="topic",
+            name_localizations=get_localizations("commands.manual.topic.name"),
             description="The topic you want to read about.",
+            description_localizations=get_localizations("commands.manual.topic.description"),
             type=CommandOptionType.STRING,
             choices=[
                 {"name": f[: f.find(".")].replace("_", " "), "value": f[: f.find(".")]}
@@ -57,12 +64,14 @@ def invite(ctx) -> Message:
 )
 def manual(ctx, topic: str = "introduction") -> Message:
     """Get some informaton about starboard."""
+    set_i18n("locale", ctx.locale)
     return Message(embed=get_guide_embed(topic), components=get_guide_selects())
 
 
 @guide_bp.custom_handler(custom_id="guide_topic")
 def guide_topic(ctx):
     """Handler for the topic select"""
+    set_i18n("locale", ctx.locale)
     return Message(embed=get_guide_embed(ctx.values[0]), components=get_guide_selects(), update=True)
 
 

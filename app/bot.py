@@ -7,20 +7,18 @@ from os import getenv
 from time import sleep
 
 import config
+import i18n
 import requests
-from flask import Flask, request, redirect
+from flask import Flask, redirect, request
 from flask_discord_interactions import DiscordInteractions
 from flask_discord_interactions.models.component import ActionRow, Button
 from flask_discord_interactions.models.embed import Author, Embed, Field, Footer, Media
 from flask_discord_interactions.models.message import Message
 from flask_discord_interactions.models.option import CommandOptionType, Option
-from guide import guide_bp
+from i18n import set as set_i18n
+from i18n import t
 from resources import guilds, messages
 from utils import get_localizations
-
-import i18n
-from i18n import t, set as set_i18n
-
 
 i18n.set("filename_format", config.I18n.FILENAME_FORMAT)
 i18n.set("fallback", config.I18n.FALLBACK)
@@ -28,6 +26,13 @@ i18n.set("available_locales", config.I18n.AVAILABLE_LOCALES)
 i18n.set("skip_locale_root_data", True)
 
 i18n.load_path.append("./locales")
+
+# ugly thing I have to do to support nested locales
+for locale in config.I18n.AVAILABLE_LOCALES:
+    logging.info("Initialized locale %s", locale)
+    i18n.t("name", locale=locale)
+from guide import guide_bp
+
 app = Flask(__name__)
 discord = DiscordInteractions(app)
 
@@ -45,11 +50,6 @@ console_handler = logging.StreamHandler()
 console_handler.setFormatter(logging.Formatter(config.LOG_FORMAT))
 logger.addHandler(console_handler)
 
-
-# ugly thing I have to do to support nested locales
-for locale in config.I18n.AVAILABLE_LOCALES:
-    logging.info("Initialized locale %s", locale)
-    i18n.t("name", locale=locale)
 
 if "--remove-global" in sys.argv:
     discord.update_commands()
@@ -202,6 +202,8 @@ def star_button(ctx, message_id, stars: int):
 
 
 @discord.command(
+    name_localizations=get_localizations("commands.settings.name"),
+    description_localizations=get_localizations("commands.settings.description"),
     default_member_permissions=32,
     options=[
         Option(
@@ -253,7 +255,8 @@ def webhook():
         "client_secret": getenv("DISCORD_CLIENT_SECRET", default=""),
         "grant_type": "authorization_code",
         "code": request.args.get("code"),
-        "redirect_uri": "https://starboard.rfive.de/api/setup",
+        # "redirect_uri": "https://starboard.rfive.de/api/setup",
+        "redirect_uri": "http://localhost:9200/setup",
     }
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     r = requests.post("https://discord.com/api/v10/oauth2/token", data=data, headers=headers)

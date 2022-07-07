@@ -208,19 +208,25 @@ def star_button(ctx, message_id, stars: int):
     options=[
         Option(
             name="stars",
+            name_localizations=get_localizations("commands.settings.stars.name"),
             type=CommandOptionType.INTEGER,
             description="The amount of stars required to send the message.",
+            description_localizations=get_localizations("commands.settings.stars.description"),
             min_value=2,
         ),
         Option(
             name="allow_self_stars",
+            name_localizations=get_localizations("commands.settings.allow_self_stars.name"),
             type=CommandOptionType.BOOLEAN,
             description="Whether or not to allow users to star their own messages.",
+            description_localizations=get_localizations("commands.settings.allow_self_stars.description"),
         ),
         Option(
             name="delete_message",
+            name_localizations=get_localizations("commands.settings.delete_message.name"),
             type=CommandOptionType.BOOLEAN,
             description="Whether or not to delete the interaction response after starring and sending the message.",
+            description_localizations=get_localizations("commands.settings.delete_message.description"),
         ),
     ],
 )
@@ -235,13 +241,14 @@ def settings(ctx, stars: int = None, allow_self_stars: bool = None, delete_messa
     if delete_message is not None:
         guild.set_delete_own_messages(delete_message)
     return Message(
-        "Settings successfully updated.",
+        t("settings.success"),
         embed=Embed(
             fields=[
-                Field("Required stars", str(guild.required_stars)),
-                Field("Allow self stars", str(guild.self_stars_allowed)),
-                Field("Delete interaction response", str(guild.delete_own_messages)),
+                Field(t("settings.required_stars"), str(guild.required_stars)),
+                Field(t("settings.allow_self_stars"), "✅" if guild.self_stars_allowed is True else "⛔"),
+                Field(t("settings.delete_message"), "✅" if guild.delete_own_messages is True else "⛔"),
             ],
+            color=config.EMBED_COLOR,
         ),
         ephemeral=True,
     )

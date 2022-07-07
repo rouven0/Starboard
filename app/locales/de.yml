@@ -19,6 +19,12 @@ invite:
     senden soll.
   button: Klicke hier, um fortzufahren
 
+settings:
+  success: Einstellungen erfolgreich gespeichert.
+  required_stars: Benötigte Sterne
+  allow_self_stars: Eigene Einreichungen
+  delete_message: Interaktionsnachrichten löschen
+
 commands:
   star_context:
     name: Einreichen
@@ -28,6 +34,15 @@ commands:
   settings:
     name: einstellungen
     description: Starboard konfigurieren. 
+    stars:
+      name: sterne
+      description: Anzahl der erforderlichen Sterne, um eine Nachricht an das Starboard zu senden.
+    allow_self_stars:
+      name: eigene_einreichungen
+      description: Erlaubt Nutzern, ihre eigenen Nachrichten einzureichen.
+    delete_message:
+      name: nachricht_löschen
+      description: Löscht die Antwort von Starboard, nachdem eine Nachricht an das Starboard gesented wurde.
   manual:
     name: handbuch
     description: Anleitungen und hilfreiche Tipps.

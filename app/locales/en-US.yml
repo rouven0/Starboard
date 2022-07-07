@@ -19,6 +19,12 @@ invite:
     post its messages to.
   button: Click here to continue
 
+settings:
+  success: Settings successfully updated
+  required_stars: Required stars
+  allow_self_stars: Allow self stars
+  delete_message: Delete interaction response
+
 commands:
   star_context:
     name: Star message
@@ -28,6 +34,16 @@ commands:
   settings:
     name: settings
     description: Set up Starboard.
+    stars:
+      name: stars
+      description: The amount of Stars required to send a message to the Starboard.
+    allow_self_stars:
+      name: allow_self_stars
+      description: Whether or ot to allow users to star their own messages.
+    delete_message:
+      name: delete_messages
+      description: Whether or not to delete the interaction response after starring and sending the message.
+
   manual:
     name: manual
     description: Get some information about Starboard.

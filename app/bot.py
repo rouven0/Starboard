@@ -255,8 +255,7 @@ def webhook():
         "client_secret": getenv("DISCORD_CLIENT_SECRET", default=""),
         "grant_type": "authorization_code",
         "code": request.args.get("code"),
-        # "redirect_uri": "https://starboard.rfive.de/api/setup",
-        "redirect_uri": "http://localhost:9200/setup",
+        "redirect_uri": "https://starboard.rfive.de/api/setup",
     }
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     r = requests.post("https://discord.com/api/v10/oauth2/token", data=data, headers=headers)

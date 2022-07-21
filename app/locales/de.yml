@@ -1,0 +1,51 @@
+name: Starboard
+errors:
+  too_old: Du kannst keinen Nachrichten einreichen, die älter als 30 Tage sind.
+  starboard_message: Du kannst keine Nachrichten von Starboard einreichen.
+  message_exists: Diese Nachricht hat bereits einen oder mehr Sterne erhalten, sieh in deinem Starboard oder in diesem Channel nach.
+  self_star: Du kannst nicht deine eigenen Nachrichten einreichen.
+  starred_twice: Du kannst einer Nachricht nicht mehr als einen Stern geben.
+
+message:
+  author: |
+    %{author} hat eine Nachricht für das Starboard vorgeschlagen.
+  footer: Drücke den Schalter um einen Stern hinzuzufügen.
+  jump: Zur Nachricht springen
+    
+invite: 
+  message: >
+    Klicke auf den Button, um loszulegen. Nachdem du den Server ausgewählt hast,
+    musst du einen bereits angelegten channel festlegen, an den Starboard seine Nachrichten
+    senden soll.
+  button: Klicke hier, um fortzufahren
+
+settings:
+  success: Einstellungen erfolgreich gespeichert.
+  required_stars: Benötigte Sterne
+  allow_self_stars: Eigene Einreichungen
+  delete_message: Interaktionsnachrichten löschen
+
+commands:
+  star_context:
+    name: Einreichen
+  invite:
+    name: installieren
+    description: Starboard auf deinem Server einrichten.
+  settings:
+    name: einstellungen
+    description: Starboard konfigurieren. 
+    stars:
+      name: sterne
+      description: Anzahl der erforderlichen Sterne, um eine Nachricht an das Starboard zu senden.
+    allow_self_stars:
+      name: eigene_einreichungen
+      description: Erlaubt Nutzern, ihre eigenen Nachrichten einzureichen.
+    delete_message:
+      name: nachricht_löschen
+      description: Löscht die Antwort von Starboard, nachdem eine Nachricht an das Starboard gesented wurde.
+  manual:
+    name: handbuch
+    description: Anleitungen und hilfreiche Tipps.
+    topic:
+      name: thema
+      description: Das Thema, über das du lesen willst.

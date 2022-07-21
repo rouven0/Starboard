@@ -1,0 +1,52 @@
+name: Starboard
+errors:
+  too_old: You can't star messages older than 30 days.
+  starboard_message: You can't star messages from Starboard
+  message_exists: This message already got stars. Check your Starboard channel to see it.
+  self_star: You can't star your own messages.
+  starred_twice: You can't star a message twice.
+
+message:
+  author: |
+    %{author} starred a message:
+  footer: Click the button to add a star.
+  jump: Jump to message
+
+invite:
+  message: >
+    Click the button below to get started. You will be asked to select a server to install
+    Starboard to and you have to choose an existing channel within that server that Starboard should
+    post its messages to.
+  button: Click here to continue
+
+settings:
+  success: Settings successfully updated
+  required_stars: Required stars
+  allow_self_stars: Allow self stars
+  delete_message: Delete interaction response
+
+commands:
+  star_context:
+    name: Star message
+  invite:
+    name: invite
+    description: Install starboard on your server.
+  settings:
+    name: settings
+    description: Set up Starboard.
+    stars:
+      name: stars
+      description: The amount of Stars required to send a message to the Starboard.
+    allow_self_stars:
+      name: allow_self_stars
+      description: Whether or ot to allow users to star their own messages.
+    delete_message:
+      name: delete_messages
+      description: Whether or not to delete the interaction response after starring and sending the message.
+
+  manual:
+    name: manual
+    description: Get some information about Starboard.
+    topic:
+      name: topic
+      description: The topic you want to read about.

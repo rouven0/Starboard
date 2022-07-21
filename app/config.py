@@ -10,3 +10,10 @@ DATABASE_ARGS = {
     "passwd": getenv("MYSQL_PASSWORD"),
     "database": getenv("MYSQL_DATABASE"),
 }
+
+
+class I18n:
+    "I18n configuration values"
+    AVAILABLE_LOCALES = ["en-US", "de"]
+    FILENAME_FORMAT = "{locale}{format}"
+    FALLBACK = "en-US"

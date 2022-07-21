@@ -4,45 +4,14 @@ from os import listdir
 
 import config
 from flask_discord_interactions import DiscordInteractionsBlueprint, Embed, Message
-from flask_discord_interactions.models.component import ActionRow, Button, SelectMenu, SelectMenuOption
+from flask_discord_interactions.models.component import ActionRow, SelectMenu, SelectMenuOption
 from flask_discord_interactions.models.embed import Media
 from flask_discord_interactions.models.option import CommandOptionType, Option
 from i18n import set as set_i18n
-from i18n import t
+# from i18n import t
 from utils import get_localizations
 
 guide_bp = DiscordInteractionsBlueprint()
-
-
-@guide_bp.command(
-    name_localizations=get_localizations("commands.invite.name"),
-    description_localizations=get_localizations("commands.invite.description"),
-)
-def invite(ctx) -> Message:
-    "Install Starboard on your server."
-    set_i18n("locale", ctx.locale)
-    return Message(
-        embed=Embed(
-            title=t("commands.invite.description"),
-            description=t("invite.message"),
-            color=config.EMBED_COLOR,
-        ),
-        components=[
-            ActionRow(
-                [
-                    Button(
-                        label=t("invite.button"),
-                        style=5,
-                        url=(
-                            "https://discord.com/api/oauth2/authorize?client_id=966294455726506035"
-                            "&redirect_uri=https%3A%2F%2Fstarboard.rfive.de%2Fapi%2Fsetup&response_type=code"
-                            "&scope=webhook.incoming%20applications.commands"
-                        ),
-                    )
-                ]
-            )
-        ],
-    )
 
 
 @guide_bp.command(
@@ -108,19 +77,6 @@ def get_guide_selects():
                     placeholder="Select a topic",
                 )
             ]
-        ),
-        ActionRow(
-            components=[
-                Button(
-                    label="Add starboard to your server",
-                    style=5,
-                    url=(
-                        "https://discord.com/api/oauth2/authorize?client_id=966294455726506035"
-                        "&redirect_uri=https%3A%2F%2Fstarboard.rfive.de%2Fapi%2Fsetup&response_type=code"
-                        "&scope=webhook.incoming%20applications.commands"
-                    ),
-                )
-            ]
-        ),
+        )
     ]
     return selects

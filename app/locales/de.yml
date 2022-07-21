@@ -12,13 +12,6 @@ message:
   footer: Drücke den Schalter um einen Stern hinzuzufügen.
   jump: Zur Nachricht springen
     
-invite: 
-  message: >
-    Klicke auf den Button, um loszulegen. Nachdem du den Server ausgewählt hast,
-    musst du einen bereits angelegten channel festlegen, an den Starboard seine Nachrichten
-    senden soll.
-  button: Klicke hier, um fortzufahren
-
 settings:
   success: Einstellungen erfolgreich gespeichert.
   required_stars: Benötigte Sterne

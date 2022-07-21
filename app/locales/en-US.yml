@@ -12,13 +12,6 @@ message:
   footer: Click the button to add a star.
   jump: Jump to message
 
-invite:
-  message: >
-    Click the button below to get started. You will be asked to select a server to install
-    Starboard to and you have to choose an existing channel within that server that Starboard should
-    post its messages to.
-  button: Click here to continue
-
 settings:
   success: Settings successfully updated
   required_stars: Required stars

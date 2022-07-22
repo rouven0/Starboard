@@ -8,8 +8,9 @@ from flask_discord_interactions.models.component import ActionRow, SelectMenu, S
 from flask_discord_interactions.models.embed import Media
 from flask_discord_interactions.models.option import CommandOptionType, Option
 from i18n import set as set_i18n
+
 # from i18n import t
-from utils import get_localizations
+from utils import get_localizations, log_command
 
 guide_bp = DiscordInteractionsBlueprint()
 
@@ -34,6 +35,7 @@ guide_bp = DiscordInteractionsBlueprint()
 def manual(ctx, topic: str = "introduction") -> Message:
     """Get some informaton about starboard."""
     set_i18n("locale", ctx.locale)
+    log_command(ctx)
     return Message(embed=get_guide_embed(topic), components=get_guide_selects())
 
 

@@ -9,4 +9,4 @@ RUN pip3 install -r requirements.txt
 
 COPY app/ .
 
-CMD gunicorn bot:app -b 0.0.0.0:9200 --error-logfile - --access-logfile -
+CMD gunicorn bot:app -b 0.0.0.0:9200 --error-logfile -

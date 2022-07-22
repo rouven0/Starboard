@@ -18,7 +18,7 @@ from flask_discord_interactions.models.option import CommandOptionType, Option
 from i18n import set as set_i18n
 from i18n import t
 from resources import guilds, messages
-from utils import get_localizations
+from utils import get_localizations, log_command
 
 i18n.set("filename_format", config.I18n.FILENAME_FORMAT)
 i18n.set("fallback", config.I18n.FALLBACK)
@@ -62,6 +62,7 @@ if "--remove-global" in sys.argv:
 def star(ctx, message: Message):
     """Message starring context menu command"""
     set_i18n("locale", ctx.locale)
+    log_command(ctx)
     guild = guilds.get(ctx.guild_id)
     if int(message.id) < messages.max_timestamp():
         return Message(t("errors.too_old"), ephemeral=True)
@@ -235,6 +236,7 @@ def star_button(ctx, message_id, stars: int):
 def settings(ctx, stars: int = None, allow_self_stars: bool = None, delete_message: bool = None):
     """Set up starboard."""
     set_i18n("locale", ctx.locale)
+    log_command(ctx)
     guild = guilds.get(ctx.guild_id)
     if stars:
         guilds.update(guild, required_stars=stars)
@@ -279,6 +281,7 @@ def webhook():
         guilds.insert(guilds.Guild(id=webhook["guild_id"], webhook_id=webhook["id"], webhook_token=webhook["token"]))
     else:
         guilds.update(guilds.get(webhook["guild_id"]), webhook_id=webhook["id"], webhook_token=webhook["token"])
+    logging.info("Got authorized for guild %s", webhook["guild_id"])
 
     return redirect("https://discord.com/oauth2/authorized")
 

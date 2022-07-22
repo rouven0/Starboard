@@ -1,3 +1,4 @@
+# pylint: disable=too-few-public-methods
 """Some configuration values"""
 from os import getenv
 

@@ -1,4 +1,4 @@
-# pylint: disable=unused-argument, missing-module-docstring
+# pylint: disable=unused-argument, missing-module-docstring, wrong-import-position
 import logging
 import sys
 import threading
@@ -156,7 +156,7 @@ def star_button(ctx, message_id, stars: int):
     embeds_starboard[0].footer = Footer(message_id)
     embeds_starboard[0].timestamp = datetime.utcnow().isoformat()
 
-    r = requests.post(
+    requests.post(
         f"{config.BASE_URL}/{guild.webhook_id}/{guild.webhook_token}",
         json=Message(
             embeds=embeds_starboard,
@@ -172,9 +172,8 @@ def star_button(ctx, message_id, stars: int):
                 )
             ],
         ).dump()["data"],
-    )
+    ).raise_for_status()
     message.mark_sent()
-    r.raise_for_status()
 
     return Message(
         t("message.author", author=ctx.author.username),
@@ -265,13 +264,14 @@ def webhook():
         "redirect_uri": "https://starboard.rfive.de/api/setup",
     }
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
-    r = requests.post("https://discord.com/api/v10/oauth2/token", data=data, headers=headers)
+    auth_request = requests.post("https://discord.com/api/v10/oauth2/token", data=data, headers=headers)
     try:
-        r.raise_for_status()
-    except requests.HTTPError as e:
-        logging.error(e)
+        auth_request.raise_for_status()
+    except requests.HTTPError as error:
+        logging.error(error)
         return "Error while setting up", 500
-    webhook = r.json()["webhook"]
+    # pylint: disable = redefined-outer-name
+    webhook = auth_request.json()["webhook"]
     if not guilds.exists(webhook["guild_id"]):
         guilds.insert(guilds.Guild(id=webhook["guild_id"], webhook_id=webhook["id"], webhook_token=webhook["token"]))
     else:

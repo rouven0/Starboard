@@ -56,7 +56,9 @@ if "--remove-global" in sys.argv:
     sys.exit()
 
 
-@discord.command(type=3, name="Star message", name_localizations=get_localizations("commands.star_context.name"))
+@discord.command(
+    type=3, name="Star message", name_localizations=get_localizations("commands.star_context.name"), dm_permission=False
+)
 def star(ctx, message: Message):
     """Message starring context menu command"""
     set_i18n("locale", ctx.locale)
@@ -204,6 +206,7 @@ def star_button(ctx, message_id, stars: int):
     name_localizations=get_localizations("commands.settings.name"),
     description_localizations=get_localizations("commands.settings.description"),
     default_member_permissions=32,
+    dm_permission=False,
     options=[
         Option(
             name="stars",

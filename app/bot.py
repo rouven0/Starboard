@@ -46,6 +46,7 @@ if "--debug" in sys.argv:
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+logger.handlers.clear()
 console_handler = logging.StreamHandler()
 console_handler.setFormatter(logging.Formatter(config.LOG_FORMAT))
 logger.addHandler(console_handler)

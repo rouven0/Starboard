@@ -18,6 +18,20 @@ settings:
   allow_self_stars: Eigene Einreichungen
   delete_message: Interaktionsnachrichten löschen
 
+guild_not_found:
+  title: Hey
+  body: Es sieht so aus, als wäre beim Installieren kein Webhook erstellt worden. Bitte klicke den Button um das Setup abzuschließen.
+  explanation:
+    name: Was passiert dann?
+    value: |
+      Ein Fenster wird erscheinen, in welchem du diesen Server hier auswählen musst.
+      Danach wählst du einfach den gewünschten Kanal aus, in den Starboard senden soll und klickst auf **Autorisieren**.
+      Sobald du die Nachricht siehst, dass die Autorisierung erfolgreich war, ist die Installation abgeschlossen und Starbord sollte funktionieren.
+  warning:
+    name: ⚠️Beachte
+    value: Du musst auf diesem Server die `Server verwalten` Berechtugung haben, um fortzufahren. Ist dies nicht der Fall, kontaktieren deinen Serveradministrator des vertrauens.
+  button: Installation abschlißen
+
 commands:
   star_context:
     name: Einreichen

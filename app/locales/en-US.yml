@@ -18,6 +18,20 @@ settings:
   allow_self_stars: Allow self stars
   delete_message: Delete interaction response
 
+guild_not_found:
+  title: Hey there
+  body: It looks like we failed to create to create a webhook. Please click the button below to finish the setup.
+  explanation:
+    name: What will happen if you click the button?
+    value: |
+      You will be prompted with a form asking you to select a server. Select this server. 
+      After that, select your desired channel and click **Authorize**.
+      If you see a message that the authorization was successful, Starboard is fully set up and will properly work in here.
+  warning:
+    name: ⚠️Note
+    value: You need the `manage server` permission in here in order to perform this action. If you don't have this permission, please report this to your server admin showning them this message or asking them to run this command.
+  button: Click here to continue
+
 commands:
   star_context:
     name: Star message

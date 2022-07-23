@@ -57,6 +57,36 @@ if "--remove-global" in sys.argv:
     sys.exit()
 
 
+@app.errorhandler(guilds.GuildNotFound)
+def guild_not_found(error: guilds.GuildNotFound):
+    """
+    Prompt the webhook selection again
+    """
+    return Message(
+        embed=Embed(
+            title=t("guild_not_found.title"),
+            description=t("guild_not_found.body"),
+            color=config.EMBED_COLOR,
+            fields=[
+                Field(name=t("guild_not_found.explanation.name"), value=t("guild_not_found.explanation.value")),
+                Field(name=t("guild_not_found.warning.name"), value=t("guild_not_found.warning.value")),
+            ],
+        ),
+        ephemeral=True,
+        components=[
+            ActionRow(
+                components=[
+                    Button(
+                        style=5,
+                        label=t("guild_not_found.button"),
+                        url="https://discord.com/api/oauth2/authorize?client_id=966294455726506035&permissions=0&redirect_uri=https%3A%2F%2Fstarboard.rfive.de%2Fapi%2Fsetup&response_type=code&scope=webhook.incoming",
+                    )
+                ]
+            )
+        ],
+    ).dump()
+
+
 @discord.command(
     type=3, name="Star message", name_localizations=get_localizations("commands.star_context.name"), dm_permission=False
 )

@@ -4,4 +4,4 @@ Starboard uses webhooks to send messages to the starboard. While installing this
 You can change this channel at any time. Just head to Your *Server settings* -> *Integrations* -> *Starboard* -> *Webhooks* and change the channel there.
 
 **Configuring the bot**
-To change all the other settings starboard provides, simply use <:starboard:974340957178847292></settings:973671706965209120>.
+To change all the other settings starboard provides, simply use </settings:973671706965209120>.

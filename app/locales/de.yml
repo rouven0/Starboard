@@ -9,7 +9,7 @@ errors:
 message:
   author: |
     %{author} hat eine Nachricht für das Starboard vorgeschlagen.
-  footer: Drücke den Schalter um einen Stern hinzuzufügen.
+  footer: Drücke den Button um einen Stern hinzuzufügen.
   jump: Zur Nachricht springen
     
 settings:
@@ -30,14 +30,11 @@ guild_not_found:
   warning:
     name: ⚠️Beachte
     value: Du musst auf diesem Server die `Server verwalten` Berechtugung haben, um fortzufahren. Ist dies nicht der Fall, kontaktieren deinen Serveradministrator des vertrauens.
-  button: Installation abschlißen
+  button: Installation abschließen
 
 commands:
   star_context:
     name: Einreichen
-  invite:
-    name: installieren
-    description: Starboard auf deinem Server einrichten.
   settings:
     name: einstellungen
     description: Starboard konfigurieren. 
@@ -49,7 +46,7 @@ commands:
       description: Erlaubt Nutzern, ihre eigenen Nachrichten einzureichen.
     delete_message:
       name: nachricht_löschen
-      description: Löscht die Antwort von Starboard, nachdem eine Nachricht an das Starboard gesented wurde.
+      description: Löscht die Antwort von Starboard, nachdem eine Nachricht an das Starboard gesendet wurde.
   manual:
     name: handbuch
     description: Anleitungen und hilfreiche Tipps.

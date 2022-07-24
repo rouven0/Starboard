@@ -35,9 +35,6 @@ guild_not_found:
 commands:
   star_context:
     name: Star message
-  invite:
-    name: invite
-    description: Install starboard on your server.
   settings:
     name: settings
     description: Set up Starboard.

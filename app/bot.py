@@ -207,6 +207,7 @@ def star_button(ctx, message_id, stars: int):
             ],
         ).dump()["data"],
     ).raise_for_status()
+    logging.info("A message with the id %s was sent to the Starboard in guild %s.", message_id, ctx.guild_id)
     message.mark_sent()
 
     return Message(

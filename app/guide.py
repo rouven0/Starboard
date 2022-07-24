@@ -3,10 +3,11 @@
 from os import listdir
 
 import config
+from typing import Optional
 from flask_discord_interactions import DiscordInteractionsBlueprint, Embed, Message
 from flask_discord_interactions.models.component import ActionRow, SelectMenu, SelectMenuOption
 from flask_discord_interactions.models.embed import Media
-from flask_discord_interactions.models.option import Choice, CommandOptionType, Option, Optional
+from flask_discord_interactions.models.option import Choice, CommandOptionType, Option
 from i18n import t, set as set_i18n
 
 # from i18n import t
@@ -49,12 +50,12 @@ guide_bp = DiscordInteractionsBlueprint()
         ),
     ],
 )
-def manual(ctx, language: str = None) -> Message:
+def manual(ctx, language: str, topic: str = "intro") -> Message:
     """Get some informaton about starboard."""
     used_locale = language if language else ctx.locale
     set_i18n("locale", used_locale)
     log_command(ctx)
-    return Message(embed=get_guide_embed("intro", used_locale), components=get_guide_selects(used_locale))
+    return Message(embed=get_guide_embed(topic, used_locale), components=get_guide_selects(used_locale))
 
 
 @manual.autocomplete()
@@ -76,10 +77,10 @@ def manual_autocomplete(ctx, locale: Option, topic: Optional[Option] = None):
 
 
 @guide_bp.custom_handler(custom_id="guide_topic")
-def guide_topic(ctx):
+def guide_topic(ctx, locale: str = config.I18n.FALLBACK):
     """Handler for the topic select"""
     set_i18n("locale", ctx.locale)
-    return Message(embed=get_guide_embed(ctx.values[0]), components=get_guide_selects(), update=True)
+    return Message(embed=get_guide_embed(ctx.values[0], locale), components=get_guide_selects(locale), update=True)
 
 
 def get_guide_embed(topic: str, locale: str) -> Embed:
@@ -105,14 +106,14 @@ def get_guide_selects(locale: str):
         ActionRow(
             components=[
                 SelectMenu(
-                    custom_id="guide_topic",
+                    custom_id=["guide_topic", locale],
                     options=[
                         SelectMenuOption(
                             label=str.upper(f[:1]) + f[1 : f.find(".")].replace("_", " "), value=f[: f.find(".")]
                         )
                         for f in sorted(listdir(f"./guide/{locale}"))
                     ],
-                    placeholder="Select a topic",
+                    placeholder=t("commands.manual.topic.placeholder"),
                 )
             ]
         )

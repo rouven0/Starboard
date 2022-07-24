@@ -59,3 +59,4 @@ commands:
       name: thema
       description: Das Thema, über das du lesen willst.
       locale_error: Bitte wähle zuerst eine Sprache aus.
+      placeholder: Wähle ein Thema

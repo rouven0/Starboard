@@ -47,7 +47,6 @@ commands:
     delete_message:
       name: delete_messages
       description: Whether or not to delete the interaction response after starring and sending the message.
-
   manual:
     name: manual
     description: Get some information about Starboard.
@@ -60,3 +59,4 @@ commands:
       name: topic
       description: The topic you want to read about.
       locale_error: A locale must be chosen first.
+      placeholder: Select a topic

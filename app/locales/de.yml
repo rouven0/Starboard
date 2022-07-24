@@ -50,6 +50,12 @@ commands:
   manual:
     name: handbuch
     description: Anleitungen und hilfreiche Tipps.
+    language:
+      name: sprache
+      description: Die Sprache, in der du lesen willst.
+      english: Englisch
+      german: Deutsch
     topic:
       name: thema
       description: Das Thema, über das du lesen willst.
+      locale_error: Bitte wähle zuerst eine Sprache aus.

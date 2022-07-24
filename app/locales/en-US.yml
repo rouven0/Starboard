@@ -51,6 +51,12 @@ commands:
   manual:
     name: manual
     description: Get some information about Starboard.
+    language:
+      name: language
+      description: The language you want to read in.
+      english: English
+      german: German
     topic:
       name: topic
       description: The topic you want to read about.
+      locale_error: A locale must be chosen first.

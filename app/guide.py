@@ -55,7 +55,10 @@ def manual(ctx, language: str, topic: str = "intro") -> Message:
     used_locale = language if language else ctx.locale
     set_i18n("locale", used_locale)
     log_command(ctx)
-    return Message(embed=get_guide_embed(topic, used_locale), components=get_guide_selects(used_locale))
+    try:
+        return Message(embed=get_guide_embed(topic, used_locale), components=get_guide_selects(used_locale))
+    except FileNotFoundError:
+        return Message(t("errors.file_not_found", locale=used_locale), components=get_guide_selects(used_locale))
 
 
 @manual.autocomplete()
@@ -113,7 +116,7 @@ def get_guide_selects(locale: str):
                         )
                         for f in sorted(listdir(f"./guide/{locale}"))
                     ],
-                    placeholder=t("commands.manual.topic.placeholder"),
+                    placeholder=t("commands.manual.topic.placeholder", locale=locale),
                 )
             ]
         )

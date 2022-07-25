@@ -5,6 +5,7 @@ errors:
   message_exists: This message already got stars. Check your Starboard channel to see it.
   self_star: You can't star your own messages.
   starred_twice: You can't star a message twice.
+  file_not_found: Requested topic was not found, please select a valid one.
 
 message:
   author: |

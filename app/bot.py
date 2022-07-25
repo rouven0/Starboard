@@ -31,7 +31,7 @@ i18n.load_path.append("./locales")
 for locale in config.I18n.AVAILABLE_LOCALES:
     logging.info("Initialized locale %s", locale)
     i18n.t("name", locale=locale)
-from guide import guide_bp
+from guide import get_guide_selects, guide_bp
 
 app = Flask(__name__)
 discord = DiscordInteractions(app)

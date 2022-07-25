@@ -5,6 +5,7 @@ errors:
   message_exists: Diese Nachricht hat bereits einen oder mehr Sterne erhalten, sieh in deinem Starboard oder in diesem Channel nach.
   self_star: Du kannst nicht deine eigenen Nachrichten einreichen.
   starred_twice: Du kannst einer Nachricht nicht mehr als einen Stern geben.
+  file_not_found: Das gesuchte Thema wurde nicht gefunden. Bitte wähle ein Anderes.
 
 message:
   author: |

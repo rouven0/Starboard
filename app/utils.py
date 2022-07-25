@@ -27,5 +27,5 @@ def log_command(ctx: Context) -> None:
         ctx.command_name,
         ctx.guild_id,
         ctx.locale,
-        ctx.guild_id,
+        ctx.guild_locale,
     )

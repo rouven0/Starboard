@@ -9,6 +9,7 @@ from time import sleep
 import config
 import i18n
 import requests
+import json
 from flask import Flask, redirect, request
 from flask_discord_interactions import DiscordInteractions
 from flask_discord_interactions.models.component import ActionRow, Button
@@ -64,29 +65,31 @@ def guild_not_found(error: guilds.GuildNotFound):
     """
     Prompt the webhook selection again
     """
-    return Message(
-        embed=Embed(
-            title=t("guild_not_found.title"),
-            description=t("guild_not_found.body"),
-            color=config.EMBED_COLOR,
-            fields=[
-                Field(name=t("guild_not_found.explanation.name"), value=t("guild_not_found.explanation.value")),
-                Field(name=t("guild_not_found.warning.name"), value=t("guild_not_found.warning.value")),
+    return json.loads(
+        Message(
+            embed=Embed(
+                title=t("guild_not_found.title"),
+                description=t("guild_not_found.body"),
+                color=config.EMBED_COLOR,
+                fields=[
+                    Field(name=t("guild_not_found.explanation.name"), value=t("guild_not_found.explanation.value")),
+                    Field(name=t("guild_not_found.warning.name"), value=t("guild_not_found.warning.value")),
+                ],
+            ),
+            ephemeral=True,
+            components=[
+                ActionRow(
+                    components=[
+                        Button(
+                            style=5,
+                            label=t("guild_not_found.button"),
+                            url="https://discord.com/api/oauth2/authorize?client_id=966294455726506035&permissions=0&redirect_uri=https%3A%2F%2Fstarboard.rfive.de%2Fapi%2Fsetup&response_type=code&scope=webhook.incoming",
+                        )
+                    ]
+                )
             ],
-        ),
-        ephemeral=True,
-        components=[
-            ActionRow(
-                components=[
-                    Button(
-                        style=5,
-                        label=t("guild_not_found.button"),
-                        url="https://discord.com/api/oauth2/authorize?client_id=966294455726506035&permissions=0&redirect_uri=https%3A%2F%2Fstarboard.rfive.de%2Fapi%2Fsetup&response_type=code&scope=webhook.incoming",
-                    )
-                ]
-            )
-        ],
-    ).dump()
+        ).encode()[0]
+    )
 
 
 @discord.command(
@@ -191,23 +194,24 @@ def star_button(ctx, message_id, stars: int):
     embeds_starboard = embeds.copy()
     embeds_starboard[0].footer = Footer(message_id)
     embeds_starboard[0].timestamp = datetime.utcnow().isoformat()
-
     requests.post(
         f"{config.BASE_URL}/{guild.webhook_id}/{guild.webhook_token}",
-        json=Message(
-            embeds=embeds_starboard,
-            components=[
-                ActionRow(
-                    components=[
-                        Button(
-                            label=t("message.jump"),
-                            style=5,
-                            url=f"https://discord.com/channels/{ctx.guild_id}/{ctx.channel_id}/{message_id}",
-                        )
-                    ]
-                )
-            ],
-        ).dump()["data"],
+        json=json.loads(
+            Message(
+                embeds=embeds_starboard,
+                components=[
+                    ActionRow(
+                        components=[
+                            Button(
+                                label=t("message.jump"),
+                                style=5,
+                                url=f"https://discord.com/channels/{ctx.guild_id}/{ctx.channel_id}/{message_id}",
+                            )
+                        ]
+                    )
+                ],
+            ).encode(followup=True)[0]
+        ),
     ).raise_for_status()
     logging.info("A message with the id %s was sent to the Starboard in guild %s.", message_id, ctx.guild_id)
     message.mark_sent()

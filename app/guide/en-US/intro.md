@@ -1,4 +1,4 @@
-https://media.discordapp.net/attachments/967725111958450196/967725264425611264/unknown.png
+https://starboard.rfive.de/guide/intro.png
 Hey there, thanks for using starboard.
 This bot is a rather new innovative concept of an discord app that fully works without a bot.
 In the following short articles I will do my best explaining to you how this bot works. Use the menu below to get more detailed explanations about the particular systems.

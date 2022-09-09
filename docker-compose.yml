@@ -1,0 +1,30 @@
+version: '2'
+
+volumes:
+  db:
+
+services:
+  database:
+    image: mariadb
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=starboard
+      - MYSQL_USER=starboard
+    volumes:
+      - db:/var/lib/mysql
+  app:
+    image: therealr5/starboard
+    restart: always
+    ports:
+      - 9200:9200
+    links:
+      - database
+    environment:
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=starboard
+      - MYSQL_USER=starboard
+      - MYSQL_HOST=database
+      - DISCORD_PUBLIC_KEY=${DISCORD_PUBLIC_KEY}
+      - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}

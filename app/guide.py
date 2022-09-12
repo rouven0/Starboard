@@ -11,7 +11,7 @@ from flask_discord_interactions.models.option import Choice, CommandOptionType, 
 from i18n import t, set as set_i18n
 
 # from i18n import t
-from utils import get_localizations, log_command
+from utils import get_localizations
 
 guide_bp = DiscordInteractionsBlueprint()
 
@@ -54,7 +54,6 @@ def manual(ctx, language: str, topic: str = "intro") -> Message:
     """Get some informaton about starboard."""
     used_locale = language if language else ctx.locale
     set_i18n("locale", used_locale)
-    log_command(ctx)
     try:
         return Message(embed=get_guide_embed(topic, used_locale), components=get_guide_selects(used_locale))
     except FileNotFoundError:
@@ -63,7 +62,6 @@ def manual(ctx, language: str, topic: str = "intro") -> Message:
 
 @manual.autocomplete()
 def manual_autocomplete(ctx, locale: Option, topic: Optional[Option] = None):
-    set_i18n("locale", ctx.locale)
     # workaround since lib goes by order instead of name, topic is only None when locale option is skipped
     if topic is None:
         return [Choice(name=t("commands.manual.topic.locale_error"), value="error")]
@@ -82,7 +80,6 @@ def manual_autocomplete(ctx, locale: Option, topic: Optional[Option] = None):
 @guide_bp.custom_handler(custom_id="guide_topic")
 def guide_topic(ctx, locale: str = config.I18n.FALLBACK):
     """Handler for the topic select"""
-    set_i18n("locale", ctx.locale)
     return Message(embed=get_guide_embed(ctx.values[0], locale), components=get_guide_selects(locale), update=True)
 
 

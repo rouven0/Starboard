@@ -11,7 +11,7 @@ import i18n
 import requests
 import json
 from flask import Flask, redirect, request
-from flask_discord_interactions import DiscordInteractions
+from flask_discord_interactions import DiscordInteractions, Context
 from flask_discord_interactions.models.component import ActionRow, Button
 from flask_discord_interactions.models.embed import Author, Embed, Field, Footer, Media
 from flask_discord_interactions.models.message import Message
@@ -19,7 +19,7 @@ from flask_discord_interactions.models.option import CommandOptionType, Option
 from i18n import set as set_i18n
 from i18n import t
 from resources import guilds, messages
-from utils import get_localizations, log_command
+from utils import get_localizations
 
 i18n.set("filename_format", config.I18n.FILENAME_FORMAT)
 i18n.set("fallback", config.I18n.FALLBACK)
@@ -28,22 +28,6 @@ i18n.set("skip_locale_root_data", True)
 
 i18n.load_path.append("./locales")
 
-# ugly thing I have to do to support nested locales
-for locale in config.I18n.AVAILABLE_LOCALES:
-    logging.info("Initialized locale %s", locale)
-    i18n.t("name", locale=locale)
-from guide import guide_bp
-
-app = Flask(__name__)
-discord = DiscordInteractions(app)
-
-app.config["DISCORD_CLIENT_ID"] = getenv("DISCORD_CLIENT_ID", default="")
-app.config["DISCORD_PUBLIC_KEY"] = getenv("DISCORD_PUBLIC_KEY", default="")
-app.config["DISCORD_CLIENT_SECRET"] = getenv("DISCORD_CLIENT_SECRET", default="")
-
-if "--debug" in sys.argv:
-    app.config["DONT_VALIDATE_SIGNATURE"] = True
-
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -51,6 +35,44 @@ logger.handlers.clear()
 console_handler = logging.StreamHandler()
 console_handler.setFormatter(logging.Formatter(config.LOG_FORMAT))
 logger.addHandler(console_handler)
+
+app = Flask(__name__)
+
+
+class CustomDiscordInteractions(DiscordInteractions):
+    def handle_request(self):
+        set_i18n("locale", request.json.get("locale"))
+        return super().handle_request()
+
+    def run_command(self, data: dict):
+        ctx = Context.from_data(self, app, data)
+        logging.info(
+            "%s#%s used /%s in guild %s with locale %s and guild locale %s.",
+            ctx.author.username,
+            ctx.author.discriminator,
+            ctx.command_name,
+            ctx.guild_id,
+            ctx.locale,
+            ctx.guild_locale,
+        )
+        return super().run_command(data)
+
+
+discord = CustomDiscordInteractions(app)
+
+# ugly thing I have to do to support nested locales
+for locale in config.I18n.AVAILABLE_LOCALES:
+    logging.info("Initialized locale %s", locale)
+    i18n.t("name", locale=locale)
+from guide import guide_bp
+
+
+app.config["DISCORD_CLIENT_ID"] = getenv("DISCORD_CLIENT_ID", default="")
+app.config["DISCORD_PUBLIC_KEY"] = getenv("DISCORD_PUBLIC_KEY", default="")
+app.config["DISCORD_CLIENT_SECRET"] = getenv("DISCORD_CLIENT_SECRET", default="")
+
+if "--debug" in sys.argv:
+    app.config["DONT_VALIDATE_SIGNATURE"] = True
 
 
 if "--remove-global" in sys.argv:
@@ -95,8 +117,6 @@ def guild_not_found(error: guilds.GuildNotFound):
 )
 def star(ctx, message: Message):
     """Message starring context menu command"""
-    set_i18n("locale", ctx.locale)
-    log_command(ctx)
     guild = guilds.get(ctx.guild_id)
     if int(message.id) < messages.max_timestamp():
         return Message(t("errors.too_old"), ephemeral=True)
@@ -144,7 +164,6 @@ def star(ctx, message: Message):
 @discord.custom_handler(custom_id="star")
 def star_button(ctx, message_id, stars: int):
     """Star button handler"""
-    set_i18n("locale", ctx.locale)
     guild = guilds.get(ctx.guild_id)
     message = messages.get(message_id)
     if int(message_id) < messages.max_timestamp():
@@ -271,8 +290,6 @@ def star_button(ctx, message_id, stars: int):
 )
 def settings(ctx, stars: int = None, allow_self_stars: bool = None, delete_message: bool = None):
     """Set up starboard."""
-    set_i18n("locale", ctx.locale)
-    log_command(ctx)
     guild = guilds.get(ctx.guild_id)
     if stars:
         guilds.update(guild, required_stars=stars)
